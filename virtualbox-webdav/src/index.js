@@ -1,6 +1,7 @@
 export default {
 	async fetch(request, env, ctx) {
-		const { pathname } = new URL(request.url);
+		const { pathname, hostname } = new URL(request.url);
+		const proxymode = hostname.indexOf("proxy") >= 0;
 		//过滤资源管理器无用请求
 		if (pathname.endsWith("desktop.ini") || pathname.endsWith("folder.jpg") || pathname.endsWith("folder.gif") || pathname.endsWith("Thumbs.db")) {
 			return new Response(null, { status: 404 })
@@ -127,7 +128,7 @@ export default {
 				if (pathname == "/") {
 					return new Response("你说得对，但virtualbox-download-webdav-workers是一款由琴梨梨开发的WebDAV服务器，在这个名为WebDAV的世界里，你将扮演一位名为资源管理器的程序，在浏览中邂逅各式各样的文件，和它们一起击败运营商，同时逐步发现Github的真相。", { status: 418 });
 				}
-				return Response.redirect("https://download.virtualbox.org/virtualbox" + pathname, 301)
+				return proxymode ? fetch("https://download.virtualbox.org/virtualbox" + pathname) : Response.redirect("https://download.virtualbox.org/virtualbox" + pathname, 301)
 			};
 			default: {
 				return new Response("你说得对，但virtualbox-download-webdav-workers是一款由琴梨梨开发的WebDAV服务器，在这个名为WebDAV的世界里，你将扮演一位名为资源管理器的程序，在浏览中邂逅各式各样的文件，和它们一起击败运营商，同时逐步发现Github的真相。", { status: 418 });
