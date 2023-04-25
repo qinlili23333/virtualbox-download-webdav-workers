@@ -1,6 +1,10 @@
 export default {
 	async fetch(request, env, ctx) {
 		const { pathname } = new URL(request.url);
+		//过滤资源管理器无用请求
+		if (pathname.endsWith("desktop.ini") || pathname.endsWith("folder.jpg") || pathname.endsWith("folder.gif") || pathname.endsWith("Thumbs.db")) {
+			return new Response(null, { status: 404 })
+		};
 		//Windows资源管理器验证
 		switch (request.method) {
 			case "OPTIONS": {
@@ -14,7 +18,6 @@ export default {
 				});
 			};
 			case "PROPFIND": {
-				console.log(request.headers);
 				const formatBytes = size => {
 					const units = {
 						K: 1024,
@@ -33,13 +36,48 @@ export default {
 					xml += `</d:multistatus>`;
 					return xml
 				}
+				const InitFileXML = headers => {
+					const basicbody = `<d:response><d:href>` + pathname + `</d:href><d:propstat><d:prop><d:getlastmodified>` + headers.get("Date") + `</d:getlastmodified><d:getcontentlength>` + headers.get("Content-Length") + `</d:getcontentlength><d:getcontenttype>` + headers.get("Content-Type") + `</d:getcontenttype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>`;
+					let xml = `<?xml version="1.0" encoding="utf-8" ?><d:multistatus xmlns:d="DAV:" xmlns:s="http://qinlili.bid/ns">`;
+					xml += basicbody;
+					xml += `</d:multistatus>`;
+					return xml
+				}
 				let itemList = []
+				let dlfetch = await fetch("https://download.virtualbox.org/virtualbox" + pathname, {
+					cf: {
+						apps: false,
+						cacheTtl: (pathname == "/") ? 3600 : 86400
+					},
+					method: "HEAD"
+				});
+				if (!(dlfetch.headers.get("Content-Type") == "text/html")) {
+					//资源管理器在读取压缩包
+					return new Response(InitFileXML(dlfetch.headers), {
+						headers: {
+							"DAV": "1,2",
+							"Content-Type": "application/xml; charset=utf-8",
+							"MS-Author-Via": "DAV",
+							"X-Powered-By": "QINLILI23333",
+							"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/"
+						},
+						status: 207
+					});
+				} else {
+					dlfetch = await fetch("https://download.virtualbox.org/virtualbox" + pathname, {
+						cf: {
+							apps: false,
+							cacheTtl: (pathname == "/") ? 3600 : 86400
+						},
+						method: "GET"
+					});
+				};
 				if (!(request.headers.get("Depth") == 0)) {
-					let dlpage = await (await fetch("https://download.virtualbox.org/virtualbox" + pathname)).text();
+					let dlpage = await dlfetch.text();
 					let fileList = dlpage.substring(dlpage.indexOf("<pre>") + 5, dlpage.indexOf("</pre>")).split("<a ");
 					fileList.shift();
 					let formatFileList = [{
-						name: "000 本服务由琴梨梨提供",
+						name: "000本服务由琴梨梨提供",
 						href: "qinlili.bid",
 						time: new Date().toUTCString(),
 						size: 114514
