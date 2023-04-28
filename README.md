@@ -11,12 +11,14 @@ vboxdav.qinlili.bid
 
 ### 如何使用
 在任何支持WebDAV的程序内填写`https://vboxdav.qinlili.bid`即可，若需要选择用户名请选择匿名  
+若需要代理下载模式请使用`https://vboxdav-proxy.qinlili.bid`，其他同上  
 已测试的客户端包括Windows资源管理器，MT管理器，Solid Explorer  
 请不要在浏览器内直接访问该地址， 这不会得到任何有用的信息，WebDAV协议并未要求在浏览器内展示人类友好的界面，出于偷懒本项目未和其他WebDAV服务端一样额外实现浏览器访问界面  
 
 ## 技术细节
 本项目通过直接访问官方下载网页并直接通过字符串分割解析（Workers没有DOMParser支持），然后直接用拼接字符串办法构建WebDAV标准的XML返回  
 整个项目实现非常的简陋且扭曲，没有使用任何依赖库，但是能跑，钻木取火也能点着不是么  
+具体的解释可以看[我写的文章](https://www.bilibili.com/read/cv23371339)  
 
 ## 开源协议
 本项目使用AGPL3.0协议开源  
