@@ -18,6 +18,15 @@ export default {
 					}
 				});
 			};
+			case "HEAD": {
+				return fetch("https://download.virtualbox.org/virtualbox" + pathname, {
+					cf: {
+						apps: false,
+						cacheTtl: (pathname == "/") ? 3600 : 86400
+					},
+					method: "HEAD"
+				});
+			}
 			case "PROPFIND": {
 				const formatBytes = size => {
 					const units = {
