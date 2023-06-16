@@ -4,7 +4,7 @@ export default {
 		const proxymode = hostname.indexOf("proxy") >= 0;
 		//过滤资源管理器无用请求
 		if (pathname.endsWith("desktop.ini") || pathname.endsWith("folder.jpg") || pathname.endsWith("folder.gif") || pathname.endsWith("Thumbs.db")) {
-			return new Response(null, { status: 404 })
+			return new Response("0", { status: 200 })
 		};
 		//Windows资源管理器验证
 		switch (request.method) {
@@ -14,7 +14,8 @@ export default {
 						"MS-Author-Via": "DAV",
 						"X-Powered-By": "QINLILI23333",
 						"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/",
-						"Allow": "OPTIONS,GET,HEAD,PROPFIND"
+						"Allow": "OPTIONS,GET,HEAD,PROPFIND",
+						"Cache-Control": "public, max-age=31536000"
 					}
 				});
 			};
@@ -69,7 +70,8 @@ export default {
 							"Content-Type": "application/xml; charset=utf-8",
 							"MS-Author-Via": "DAV",
 							"X-Powered-By": "QINLILI23333",
-							"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/"
+							"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/",
+							"Cache-Control": "public, max-age=3600"
 						},
 						status: 207
 					});
@@ -128,14 +130,20 @@ export default {
 						"Content-Type": "application/xml; charset=utf-8",
 						"MS-Author-Via": "DAV",
 						"X-Powered-By": "QINLILI23333",
-						"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/"
+						"X-Github-Project": "https://github.com/qinlili23333/virtualbox-download-webdav-workers/",
+						"Cache-Control": "public, max-age=3600"
 					},
 					status: 207
 				});
 			};
 			case "GET": {
 				if (pathname == "/") {
-					return new Response("你说得对，但virtualbox-download-webdav-workers是一款由琴梨梨开发的WebDAV服务器，在这个名为WebDAV的世界里，你将扮演一位名为资源管理器的程序，在浏览中邂逅各式各样的文件，和它们一起击败运营商，同时逐步发现Github的真相。", { status: 418 });
+					return new Response("你说得对，但virtualbox-download-webdav-workers是一款由琴梨梨开发的WebDAV服务器，在这个名为WebDAV的世界里，你将扮演一位名为资源管理器的程序，在浏览中邂逅各式各样的文件，和它们一起击败运营商，同时逐步发现Github的真相。", {
+						status: 418,
+						headers: {
+							"Cache-Control": "public, max-age=3600"
+						}
+					});
 				}
 				return proxymode ? fetch("https://download.virtualbox.org/virtualbox" + pathname) : Response.redirect("https://download.virtualbox.org/virtualbox" + pathname, 301)
 			};
